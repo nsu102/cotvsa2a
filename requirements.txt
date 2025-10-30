@@ -1,0 +1,14 @@
+fastapi
+uvicorn
+python-dotenv
+httpx
+datasets
+pydantic
+numpy
+pandas
+tqdm
+pytest
+pytest-asyncio
+google-genai
+a2a-sdk
+starlette

@@ -1,0 +1,224 @@
+{
+  "results": [
+    {
+      "sample_id": "gsm8k_10",
+      "method": "cot",
+      "model": "gpt",
+      "predicted": "366",
+      "ground_truth": "366",
+      "tokens": 365,
+      "prompt_tokens": 103,
+      "completion_tokens": 262,
+      "is_correct": true
+    },
+    {
+      "sample_id": "gsm8k_11",
+      "method": "cot",
+      "model": "gpt",
+      "predicted": "694",
+      "ground_truth": "694",
+      "tokens": 562,
+      "prompt_tokens": 104,
+      "completion_tokens": 458,
+      "is_correct": true
+    },
+    {
+      "sample_id": "gsm8k_12",
+      "method": "cot",
+      "model": "gpt",
+      "predicted": "13",
+      "ground_truth": "13",
+      "tokens": 630,
+      "prompt_tokens": 110,
+      "completion_tokens": 520,
+      "is_correct": true
+    },
+    {
+      "sample_id": "gsm8k_1",
+      "method": "cot",
+      "model": "gpt",
+      "predicted": "3",
+      "ground_truth": "3",
+      "tokens": 439,
+      "prompt_tokens": 71,
+      "completion_tokens": 368,
+      "is_correct": true
+    },
+    {
+      "sample_id": "gsm8k_9",
+      "method": "cot",
+      "model": "gpt",
+      "predicted": "460",
+      "ground_truth": "460",
+      "tokens": 740,
+      "prompt_tokens": 102,
+      "completion_tokens": 638,
+      "is_correct": true
+    },
+    {
+      "sample_id": "gsm8k_4",
+      "method": "cot",
+      "model": "gpt",
+      "predicted": "20",
+      "ground_truth": "20",
+      "tokens": 675,
+      "prompt_tokens": 152,
+      "completion_tokens": 523,
+      "is_correct": true
+    },
+    {
+      "sample_id": "gsm8k_2",
+      "method": "cot",
+      "model": "gpt",
+      "predicted": "70000",
+      "ground_truth": "70000",
+      "tokens": 633,
+      "prompt_tokens": 94,
+      "completion_tokens": 539,
+      "is_correct": true
+    },
+    {
+      "sample_id": "gsm8k_6",
+      "method": "cot",
+      "model": "gpt",
+      "predicted": "260",
+      "ground_truth": "260",
+      "tokens": 719,
+      "prompt_tokens": 84,
+      "completion_tokens": 635,
+      "is_correct": true
+    },
+    {
+      "sample_id": "gsm8k_8",
+      "method": "cot",
+      "model": "gpt",
+      "predicted": "45",
+      "ground_truth": "45",
+      "tokens": 767,
+      "prompt_tokens": 146,
+      "completion_tokens": 621,
+      "is_correct": true
+    },
+    {
+      "sample_id": "gsm8k_7",
+      "method": "cot",
+      "model": "gpt",
+      "predicted": "160",
+      "ground_truth": "160",
+      "tokens": 569,
+      "prompt_tokens": 110,
+      "completion_tokens": 459,
+      "is_correct": true
+    },
+    {
+      "sample_id": "gsm8k_5",
+      "method": "cot",
+      "model": "gpt",
+      "predicted": "64",
+      "ground_truth": "64",
+      "tokens": 642,
+      "prompt_tokens": 97,
+      "completion_tokens": 545,
+      "is_correct": true
+    },
+    {
+      "sample_id": "gsm8k_14",
+      "method": "cot",
+      "model": "gpt",
+      "predicted": "60",
+      "ground_truth": "60",
+      "tokens": 775,
+      "prompt_tokens": 94,
+      "completion_tokens": 681,
+      "is_correct": true
+    },
+    {
+      "sample_id": "gsm8k_13",
+      "method": "cot",
+      "model": "gpt",
+      "predicted": "18",
+      "ground_truth": "18",
+      "tokens": 874,
+      "prompt_tokens": 102,
+      "completion_tokens": 772,
+      "is_correct": true
+    },
+    {
+      "sample_id": "gsm8k_3",
+      "method": "cot",
+      "model": "gpt",
+      "predicted": "540",
+      "ground_truth": "540",
+      "tokens": 838,
+      "prompt_tokens": 79,
+      "completion_tokens": 759,
+      "is_correct": true
+    },
+    {
+      "sample_id": "gsm8k_16",
+      "method": "cot",
+      "model": "gpt",
+      "predicted": "230",
+      "ground_truth": "230",
+      "tokens": 617,
+      "prompt_tokens": 94,
+      "completion_tokens": 523,
+      "is_correct": true
+    },
+    {
+      "sample_id": "gsm8k_0",
+      "method": "cot",
+      "model": "gpt",
+      "predicted": "18",
+      "ground_truth": "18",
+      "tokens": 852,
+      "prompt_tokens": 107,
+      "completion_tokens": 745,
+      "is_correct": true
+    },
+    {
+      "sample_id": "gsm8k_25",
+      "method": "cot",
+      "model": "gpt",
+      "predicted": "2",
+      "ground_truth": "2",
+      "tokens": 354,
+      "prompt_tokens": 108,
+      "completion_tokens": 246,
+      "is_correct": true
+    },
+    {
+      "sample_id": "gsm8k_19",
+      "method": "cot",
+      "model": "gpt",
+      "predicted": "6",
+      "ground_truth": "6",
+      "tokens": 779,
+      "prompt_tokens": 109,
+      "completion_tokens": 670,
+      "is_correct": true
+    },
+    {
+      "sample_id": "gsm8k_15",
+      "method": "cot",
+      "model": "gpt",
+      "predicted": "125",
+      "ground_truth": "125",
+      "tokens": 646,
+      "prompt_tokens": 135,
+      "completion_tokens": 511,
+      "is_correct": true
+    },
+    {
+      "sample_id": "gsm8k_17",
+      "method": "cot",
+      "model": "gpt",
+      "predicted": "57500",
+      "ground_truth": "57500",
+      "tokens": 743,
+      "prompt_tokens": 96,
+      "completion_tokens": 647,
+      "is_correct": true
+    }
+  ]
+}
