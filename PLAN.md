@@ -13,7 +13,7 @@ Comparing Monolithic Chain-of-Thought (CoT) Prompting with Agent-to-Agent (A2A) 
 
 ---
 
-## 2. 시스템 구조 개요
+<!-- ## 2. 시스템 구조 개요
 
 ### 2.1 아키텍처
 - **Client / Runner**: 실험 스크립트 (Jupyter / CLI / pytest 형식)
@@ -29,7 +29,9 @@ Comparing Monolithic Chain-of-Thought (CoT) Prompting with Agent-to-Agent (A2A) 
   - **모델 두 개**:
     - M1: `anthropic/claude-haiku-4.5`
     - M2: `openai/gpt-5o-mini`
-  - 모든 호출에서 `usage` 필드 파싱
+  - 모든 호출에서 `usage` 필드 파싱 -->
+
+  r개소리임.
 
 ### 2.2 비교 대상
 

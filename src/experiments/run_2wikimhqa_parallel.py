@@ -10,12 +10,11 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from utils.dataset_loader import DatasetLoader
 from utils.evaluator import Evaluator, compare_answers
-from utils.a2a_visualizer import A2AVisualizer
 from baseline.cot_baseline import CoTBaseline
 
 load_dotenv()
 
-CHECKPOINT_DIR = "checkpoints"
+CHECKPOINT_DIR = "checkpoints/2wikimhqa"
 os.makedirs(CHECKPOINT_DIR, exist_ok=True)
 
 checkpoint_lock = threading.Lock()
@@ -36,25 +35,25 @@ def load_checkpoint(checkpoint_name: str):
         return data
     return None
 
-def process_a2a_sample(sample, model_name: str, dataset: str):
-    client = httpx.Client(timeout=120.0)
+def process_a2a_sample(sample, model_name: str):
+    client = httpx.Client(timeout=180.0)
     try:
         response = client.post(
             "http://localhost:8100/a2a/run",
             json={
                 "question": sample["question"],
-                "context": sample["context"],
+                "context": sample.get("context"),
                 "model_name": model_name,
-                "dataset": dataset
+                "dataset": "2wikimultihopqa"
             }
         )
         response.raise_for_status()
         result = response.json()
 
         raw_response = result["answer"]
-        predicted = DatasetLoader.extract_answer_from_response(raw_response, dataset)
+        predicted = DatasetLoader.extract_answer_from_response(raw_response, "2wikimultihopqa")
         ground_truth = sample["answer"]
-        is_correct = compare_answers(predicted, ground_truth, dataset)
+        is_correct = compare_answers(predicted, ground_truth, "2wikimultihopqa")
 
         cards = result.get("cards", [])
 
@@ -73,13 +72,17 @@ def process_a2a_sample(sample, model_name: str, dataset: str):
         }
 
     except Exception as e:
-        print(f"\n[ERROR] A2A {sample['id']}: {e}")
+        error_msg = str(e)
+        if hasattr(e, 'response') and hasattr(e.response, 'text'):
+            error_msg = f"{error_msg}\nServer response: {e.response.text}"
+        print(f"\n[ERROR] A2A {sample['id']}: {error_msg}")
         return {
             "sample_id": sample["id"],
             "method": "a2a",
             "model": model_name,
             "predicted": "ERROR",
             "ground_truth": sample["answer"],
+            "raw_response": f"ERROR: {error_msg}",
             "tokens": 0,
             "prompt_tokens": 0,
             "completion_tokens": 0,
@@ -89,17 +92,17 @@ def process_a2a_sample(sample, model_name: str, dataset: str):
     finally:
         client.close()
 
-def process_baseline_sample(sample, model_name: str, dataset: str, use_cot: bool):
-    baseline = CoTBaseline(model_name, dataset, use_cot=use_cot)
+def process_baseline_sample(sample, model_name: str, use_cot: bool):
+    baseline = CoTBaseline(model_name, "2wikimultihopqa", use_cot=use_cot)
     method_name = "cot" if use_cot else "no_cot"
 
     try:
-        result = baseline.run(sample["question"], context=sample["context"])
+        result = baseline.run(sample["question"], context=sample.get("context"))
 
         raw_response = result["answer"]
-        predicted = DatasetLoader.extract_answer_from_response(raw_response, dataset)
+        predicted = DatasetLoader.extract_answer_from_response(raw_response, "2wikimultihopqa")
         ground_truth = sample["answer"]
-        is_correct = compare_answers(predicted, ground_truth, dataset)
+        is_correct = compare_answers(predicted, ground_truth, "2wikimultihopqa")
 
         return {
             "sample_id": sample["id"],
@@ -115,13 +118,16 @@ def process_baseline_sample(sample, model_name: str, dataset: str, use_cot: bool
         }
 
     except Exception as e:
-        print(f"\n[ERROR] {method_name.upper()} {sample['id']}: {e}")
+        import traceback
+        error_msg = f"{str(e)}\n{traceback.format_exc()}"
+        print(f"\n[ERROR] {method_name.upper()} {sample['id']}: {error_msg}")
         return {
             "sample_id": sample["id"],
             "method": method_name,
             "model": model_name,
             "predicted": "ERROR",
             "ground_truth": sample["answer"],
+            "raw_response": f"ERROR: {error_msg}",
             "tokens": 0,
             "prompt_tokens": 0,
             "completion_tokens": 0,
@@ -131,7 +137,7 @@ def process_baseline_sample(sample, model_name: str, dataset: str, use_cot: bool
         baseline.close()
 
 def run_a2a_experiment_parallel(samples, model_name: str, evaluator: Evaluator, max_workers: int = 10):
-    checkpoint_name = f"hotpotqa_a2a_{model_name}"
+    checkpoint_name = f"2wikimhqa_a2a_{model_name}"
     checkpoint_data = load_checkpoint(checkpoint_name)
 
     completed_ids = set()
@@ -155,7 +161,7 @@ def run_a2a_experiment_parallel(samples, model_name: str, evaluator: Evaluator, 
     results = []
     with ThreadPoolExecutor(max_workers=max_workers) as executor:
         futures = {
-            executor.submit(process_a2a_sample, sample, model_name, "hotpotqa"): sample
+            executor.submit(process_a2a_sample, sample, model_name): sample
             for sample in remaining_samples
         }
 
@@ -176,23 +182,23 @@ def run_a2a_experiment_parallel(samples, model_name: str, evaluator: Evaluator, 
 
     if all_cards:
         os.makedirs("results", exist_ok=True)
-        cards_file = f"results/hotpotqa_a2a_{model_name}_cards.json"
+        cards_file = f"results/2wikimhqa_a2a_{model_name}_cards.json"
         with open(cards_file, "w", encoding="utf-8") as f:
             json.dump(all_cards, f, indent=2, ensure_ascii=False)
         print(f"\n[SAVE] A2A cards: {cards_file}")
 
     return all_cards
 
-def run_baseline_experiment_parallel(samples, model_name: str, use_cot: bool, evaluator: Evaluator, max_workers: int = 10):
+def run_baseline_experiment_parallel(samples, model_name: str, use_cot: bool, evaluator: Evaluator, max_workers: int = 20):
     method_name = "cot" if use_cot else "no_cot"
-    checkpoint_name = f"hotpotqa_{method_name}_{model_name}"
+    checkpoint_name = f"2wikimhqa_{method_name}_{model_name}"
     checkpoint_data = load_checkpoint(checkpoint_name)
 
     completed_ids = set()
 
     if checkpoint_data:
         for result in checkpoint_data["results"]:
-            evaluator.add_result(**result)
+            evaluator.add_result(**{k: v for k, v in result.items() if k != "raw_response"})
             completed_ids.add(result["sample_id"])
         print(f"[RESUME] {method_name.upper()}-{model_name}: {len(completed_ids)}/{len(samples)} completed")
 
@@ -207,7 +213,7 @@ def run_baseline_experiment_parallel(samples, model_name: str, use_cot: bool, ev
     results = []
     with ThreadPoolExecutor(max_workers=max_workers) as executor:
         futures = {
-            executor.submit(process_baseline_sample, sample, model_name, "hotpotqa", use_cot): sample
+            executor.submit(process_baseline_sample, sample, model_name, use_cot): sample
             for sample in remaining_samples
         }
 
@@ -227,14 +233,15 @@ def run_baseline_experiment_parallel(samples, model_name: str, use_cot: bool, ev
 
 def main():
     print("="*80)
-    print("HotpotQA Experiment (Parallel Execution)")
+    print("2WikiMultihopQA Experiment (Parallel Execution)")
     print("="*80)
 
-    print("\nLoading HotpotQA dataset (100 samples)...")
-    samples = DatasetLoader.load_hotpotqa(num_samples=100)
+    print("\nLoading 2WikiMultihopQA dataset (100 samples)...")
+    samples = DatasetLoader.load_2wikimultihopqa(num_samples=100)
     print(f"Loaded {len(samples)} samples")
+    print(f"Example: {samples[0]['question']} → {samples[0]['answer']}")
 
-    evaluator = Evaluator("hotpotqa")
+    evaluator = Evaluator("2wikimultihopqa")
 
     models = ["claude", "gpt"]
 

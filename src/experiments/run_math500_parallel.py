@@ -162,7 +162,7 @@ def run_a2a_experiment_parallel(samples, model_name: str, evaluator: Evaluator, 
     results = []
     with ThreadPoolExecutor(max_workers=max_workers) as executor:
         futures = {
-            executor.submit(process_a2a_sample, sample, model_name, "math500_algebra"): sample
+            executor.submit(process_a2a_sample, sample, model_name, "math500"): sample
             for sample in remaining_samples
         }
 
@@ -190,7 +190,7 @@ def run_a2a_experiment_parallel(samples, model_name: str, evaluator: Evaluator, 
 
     return all_cards
 
-def run_baseline_experiment_parallel(samples, model_name: str, use_cot: bool, evaluator: Evaluator, max_workers: int = 10):
+def run_baseline_experiment_parallel(samples, model_name: str, use_cot: bool, evaluator: Evaluator, max_workers: int = 20):
     method_name = "cot" if use_cot else "no_cot"
     checkpoint_name = f"math500_{method_name}_{model_name}"
     checkpoint_data = load_checkpoint(checkpoint_name)
@@ -214,7 +214,7 @@ def run_baseline_experiment_parallel(samples, model_name: str, use_cot: bool, ev
     results = []
     with ThreadPoolExecutor(max_workers=max_workers) as executor:
         futures = {
-            executor.submit(process_baseline_sample, sample, model_name, "math500_algebra", use_cot): sample
+            executor.submit(process_baseline_sample, sample, model_name, "math500", use_cot): sample
             for sample in remaining_samples
         }
 
@@ -234,14 +234,14 @@ def run_baseline_experiment_parallel(samples, model_name: str, use_cot: bool, ev
 
 def main():
     print("="*80)
-    print("MATH-500 Algebra Experiment (Parallel Execution)")
+    print("MATH-500 Experiment (Parallel Execution)")
     print("="*80)
 
-    print("\nLoading MATH-500 Algebra dataset (124 samples)...")
-    samples = DatasetLoader.load_math500_algebra(num_samples=124)
+    print("\nLoading MATH-500 dataset (500 samples)...")
+    samples = DatasetLoader.load_math500(num_samples=500)
     print(f"Loaded {len(samples)} samples")
 
-    evaluator = Evaluator("math500_algebra")
+    evaluator = Evaluator("math500")
 
     models = ["claude", "gpt"]
 

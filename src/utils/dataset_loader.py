@@ -1,16 +1,43 @@
 from datasets import load_dataset
-from typing import List, Dict, Tuple
+from typing import List, Dict
 import re
 
 class DatasetLoader:
     @staticmethod
-    def load_math500_algebra(num_samples: int = 124) -> List[Dict]:
+    def load_2wikimultihopqa(num_samples: int = 100) -> List[Dict]:
+        dataset = load_dataset("THUDM/2WikiMultihopQA", split="train")
+        samples = []
+
+        for i, item in enumerate(dataset):
+            if i >= num_samples:
+                break
+
+            question = item["question"]
+            answer = item["answer"]
+
+            context_parts = []
+            if "context" in item:
+                for ctx in item["context"]:
+                    if isinstance(ctx, list) and len(ctx) > 1:
+                        context_parts.append(" ".join(ctx[1]))
+            context = " ".join(context_parts) if context_parts else ""
+
+            samples.append({
+                "id": f"2wikimhqa_{i}",
+                "question": question,
+                "answer": answer,
+                "context": context,
+                "dataset": "2wikimultihopqa"
+            })
+
+        return samples
+
+    @staticmethod
+    def load_math500(num_samples: int = 500) -> List[Dict]:
         dataset = load_dataset("HuggingFaceH4/MATH-500", split="test")
         samples = []
 
-        algebra_items = [item for item in dataset if item.get('subject') == 'Algebra']
-
-        for i, item in enumerate(algebra_items):
+        for i, item in enumerate(dataset):
             if i >= num_samples:
                 break
 
@@ -18,64 +45,20 @@ class DatasetLoader:
             answer = item["answer"]
             solution = item.get("solution", "")
             level = item.get("level", "unknown")
+            subject = item.get("subject", "unknown")
 
             samples.append({
-                "id": f"math500_algebra_{i}",
+                "id": f"math500_{i}",
                 "question": problem,
                 "answer": answer,
                 "solution": solution,
                 "level": level,
-                "dataset": "math500_algebra"
-            })
-
-        return samples
-    @staticmethod
-    def load_gsm8k(num_samples: int = 200) -> List[Dict]:
-        dataset = load_dataset("openai/gsm8k", "main", split="test")
-        samples = []
-
-        for i, item in enumerate(dataset):
-            if i >= num_samples:
-                break
-
-            question = item["question"]
-            answer = item["answer"]
-
-            answer_number = DatasetLoader._extract_answer_number(answer)
-
-            samples.append({
-                "id": f"gsm8k_{i}",
-                "question": question,
-                "answer": answer_number,
-                "dataset": "gsm8k"
+                "subject": subject,
+                "dataset": "math500"
             })
 
         return samples
 
-    @staticmethod
-    def load_hotpotqa(num_samples: int = 100) -> List[Dict]:
-        dataset = load_dataset("hotpot_qa", "distractor", split="validation")
-        samples = []
-
-        for i, item in enumerate(dataset):
-            if i >= num_samples:
-                break
-
-            question = item["question"]
-            answer = item["answer"]
-            context = item["context"]
-
-            context_text = DatasetLoader._format_hotpot_context(context)
-
-            samples.append({
-                "id": f"hotpotqa_{i}",
-                "question": question,
-                "context": context_text,
-                "answer": answer,
-                "dataset": "hotpotqa"
-            })
-
-        return samples
 
     @staticmethod
     def _extract_answer_number(answer_text: str) -> str:
@@ -90,18 +73,6 @@ class DatasetLoader:
         return answer_text.strip()
 
     @staticmethod
-    def _format_hotpot_context(context: Dict) -> str:
-        formatted = []
-        titles = context.get("title", [])
-        sentences = context.get("sentences", [])
-
-        for title, sents in zip(titles, sentences):
-            text = " ".join(sents)
-            formatted.append(f"[{title}] {text}")
-
-        return "\n\n".join(formatted)
-
-    @staticmethod
     def extract_answer_from_response(response: str, dataset_type: str) -> str:
         if not response or not response.strip():
             return ""
@@ -110,25 +81,19 @@ class DatasetLoader:
 
         if "answer:" in response_lower:
             answer_part = response.split("nswer:")[-1].strip()
-            if dataset_type == "gsm8k":
-                matches = re.findall(r'(-?\d+(?:,\d{3})*(?:\.\d+)?)', answer_part)
-                if matches:
-                    return matches[0].replace(',', '')
-            elif dataset_type == "math500_algebra":
+            if dataset_type == "math500":
                 answer_part = answer_part.split('\n')[0].strip()
                 cleaned = DatasetLoader._clean_math_answer(answer_part)
                 if cleaned:
                     return cleaned
+            elif dataset_type == "2wikimultihopqa":
+                lines = answer_part.split('\n')
+                return lines[0].strip()
             else:
                 lines = answer_part.split('\n')
                 return lines[0].strip()
 
-        if dataset_type == "gsm8k":
-            matches = re.findall(r'(-?\d+(?:,\d{3})*(?:\.\d+)?)', response)
-            if matches:
-                return matches[-1].replace(',', '')
-
-        if dataset_type == "math500_algebra":
+        if dataset_type == "math500":
             cleaned = DatasetLoader._clean_math_answer(response)
             if cleaned:
                 return cleaned
